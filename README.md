@@ -5,7 +5,7 @@ A comprehensive training project demonstrating Infrastructure as Code (IaC) prac
 ## Overview
 
 This repository contains practical examples and demonstrations for deploying and managing Azure resources using Terraform. It serves as a learning resource for DevOps engineers and cloud architects looking to master Terraform on the Azure platform.
-
+git br
 ## Project Structure
 
 ```
