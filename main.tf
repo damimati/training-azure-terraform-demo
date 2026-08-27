@@ -648,7 +648,7 @@ resource "azurerm_virtual_machine_extension" "mati_own_install_iis" { //This ena
 
 //Using the count meta argument to deploy 
 
-resource "azurerm_network_interface" "mati_own_inc_02" { //Use this to create multiple nic deployment with count meta argument
+/*resource "azurerm_network_interface" "mati_own_inc_02" { //Use this to create multiple nic deployment with count meta argument
   count = 3
   name = "${local.vm_name_win}-${count.index}nic" //This iterates over the number defined in the count meta arguement
   location = azurerm_resource_group.mati_own_rg1.location
@@ -673,10 +673,10 @@ resource "azurerm_windows_virtual_machine" "mati_own_win_vm"{ //Windows VM multi
   admin_password = var.admin_password
   tags = local.common_tags
 
-  /*admin_ssh_key {
+  admin_ssh_key {
     username   = "mati_admin"
     public_key = file(var.ssh_pubkey_path) //file is a terraform syntax used to copy the content 
-  }*/
+  }
 
   os_disk {
     caching              = "ReadWrite"
@@ -700,4 +700,4 @@ resource "azurerm_windows_virtual_machine" "mati_own_win_vm"{ //Windows VM multi
 
 #depends_on = [ azurerm_marketplace_agreement.rhel_terms ] #This is stating that the vm will be created after terraform first accepts the Microsoft terms and condition for RHEL
 
-}
+}*/
