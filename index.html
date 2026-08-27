@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Terraform Infrastructure - Training Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #0078d4;
+            --dark-blue: #005a9e;
+            --light-gray: #f5f5f5;
+            --dark-gray: #333;
+            --accent-green: #107c10;
+            --accent-orange: #ff8c00;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-gray);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+            margin-bottom: 20px;
+        }
+
+        .repo-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 5px;
+        }
+
+        main {
+            padding: 60px 40px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section h2 {
+            color: var(--primary-blue);
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--accent-green);
+            display: inline-block;
+        }
+
+        .section p {
+            margin-bottom: 15px;
+            font-size: 1.05em;
+            line-height: 1.8;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, var(--light-gray) 0%, #fafafa 100%);
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid var(--primary-blue);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 120, 212, 0.2);
+            border-left-color: var(--accent-orange);
+        }
+
+        .feature-card h3 {
+            color: var(--primary-blue);
+            margin-bottom: 12px;
+            font-size: 1.3em;
+        }
+
+        .feature-card p {
+            font-size: 0.95em;
+            margin: 0;
+            color: #555;
+        }
+
+        .architecture-section {
+            background: var(--light-gray);
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+
+        .architecture-section h3 {
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+        }
+
+        .resource-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .resource-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-green);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .resource-item strong {
+            color: var(--primary-blue);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .resource-item small {
+            color: #666;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .code-label {
+            color: var(--accent-orange);
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin: 30px 0 20px 0;
+            border-bottom: 2px solid var(--light-gray);
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: var(--light-gray);
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s ease;
+            color: var(--dark-gray);
+        }
+
+        .tab-button.active {
+            background: var(--primary-blue);
+            color: white;
+            font-weight: bold;
+        }
+
+        .tab-button:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .deployment-flow {
+            background: var(--light-gray);
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            font-size: 1.05em;
+        }
+
+        .flow-step::before {
+            content: "▶";
+            color: var(--accent-green);
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+
+        footer {
+            background: var(--light-gray);
+            padding: 30px 40px;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            font-size: 0.95em;
+            color: #666;
+        }
+
+        .github-link {
+            display: inline-block;
+            background: var(--primary-blue);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .github-link:hover {
+            background: var(--dark-blue);
+            transform: translateX(3px);
+        }
+
+        .key-metric {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin: 10px 10px 10px 0;
+            text-align: center;
+        }
+
+        .key-metric .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .key-metric .label {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            main {
+                padding: 30px 20px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                gap: 5px;
+            }
+
+            .tab-button {
+                padding: 8px 16px;
+                font-size: 0.9em;
+            }
+        }
+
+        .toggle-content {
+            cursor: pointer;
+            color: var(--primary-blue);
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+        .toggle-content:hover {
+            color: var(--dark-blue);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Azure Terraform Infrastructure Demo</h1>
+            <p>Enterprise-Grade Cloud Infrastructure as Code Training Project</p>
+            <div>
+                <span class="repo-badge">💻 Terraform/HCL</span>
+                <span class="repo-badge">☁️ Microsoft Azure</span>
+                <span class="repo-badge">🏗️ IaC Best Practices</span>
+                <span class="repo-badge">📚 Educational</span>
+            </div>
+        </header>
+
+        <main>
+            <!-- Overview Section -->
+            <section class="section">
+                <h2>📋 Project Overview</h2>
+                <p>This is a comprehensive Terraform training project that demonstrates how to build a production-ready Azure infrastructure. It showcases Infrastructure as Code (IaC) best practices, resource management, and network architecture design patterns for enterprise cloud deployments.</p>
+                
+                <div style="margin: 30px 0;">
+                    <div class="key-metric">
+                        <span class="number">2</span>
+                        <span class="label">Virtual Networks</span>
+                    </div>
+                    <div class="key-metric">
+                        <span class="number">6</span>
+                        <span class="label">Subnets</span>
+                    </div>
+                    <div class="key-metric">
+                        <span class="number">3</span>
+                        <span class="label">Security Groups</span>
+                    </div>
+                    <div class="key-metric">
+                        <span class="number">3</span>
+                        <span class="label">Windows VMs</span>
+                    </div>
+                </div>
+
+                <a href="https://github.com/damimati/training-azure-terraform-demo" class="github-link">🔗 View on GitHub</a>
+            </section>
+
+            <!-- Core Features -->
+            <section class="section">
+                <h2>✨ Key Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>Multi-Network Architecture</h3>
+                        <p>Dual Virtual Network setup with separate address spaces, enabling advanced network segmentation and peering capabilities for complex deployments.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Layered Security</h3>
+                        <p>Network Security Groups (NSGs) for app, web, and database subnets with configurable ingress/egress rules and network isolation.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Subnet Segmentation</h3>
+                        <p>Organized subnet structure with app, web, and database tiers in both VNets, plus gateway and bastion subnets for secure access.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Network Peering</h3>
+                        <p>Bidirectional VNet peering with traffic forwarding and gateway transit configuration for seamless inter-network communication.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Advanced Routing</h3>
+                        <p>Custom route tables with specific routes for both generic and database traffic, supporting complex routing scenarios.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Virtual Machine Deployment</h3>
+                        <p>Multiple Windows Server 2022 instances with IIS installation via custom script extensions, using count meta-argument for scalability.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Architecture Components -->
+            <section class="section">
+                <h2>🏗️ Infrastructure Architecture</h2>
+                <div class="architecture-section">
+                    <h3>Deployed Azure Resources</h3>
+                    <div class="resource-list">
+                        <div class="resource-item">
+                            <strong>Resource Group</strong>
+                            <small>Central container for all Azure resources with common tags</small>
+                        </div>
+                        <div class="resource-item">
+                            <strong>Virtual Networks (2)</strong>
+                            <small>Primary and secondary VNets with distinct address spaces</small>
+                        </div>
+                        <div class="resource-item">
+                            <strong>Subnets (9)</strong>
+                            <small>App, Web, DB subnets in both VNets + Bastion + Gateway subnets</small>
+                        </div>
+                        <div class="resource-item">
+                            <strong>Network Security Groups</strong>
+                            <small>NSG enforcement on app, web, and database subnets</small>
+                        </div>
+                        <div class="resource-item">
+                            <strong>Route Tables</strong>
+                            <small>Generic and DB-specific routing with custom routes</small>
+                        </div>
+                        <div class="resource-item">
+                            <strong>VNet Peering</strong>
+                            <small>Bidirectional peering with traffic forwarding enabled</small>
+                        </div>
+                        <div class="resource-item">
+                            <strong>Windows VMs (3)</strong>
+                            <small>Standard_DS1_v2 instances with IIS and custom extensions</small>
+                        </div>
+                        <div class="resource-item">
+                            <strong>Network Interfaces</strong>
+                            <small>NICs for VM connectivity with dynamic IP allocation</small>
+                        </div>
+                        <div class="resource-item">
+                            <strong>Load Balancer</strong>
+                            <small>Optional Azure Load Balancer with health probes and NAT rules</small>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Terraform Configuration -->
+            <section class="section">
+                <h2>⚙️ Terraform Configuration Files</h2>
+                
+                <div class="tabs">
+                    <button class="tab-button active" onclick="showTab(event, 'main-tf')">main.tf</button>
+                    <button class="tab-button" onclick="showTab(event, 'variables-tf')">variables.tf</button>
+                    <button class="tab-button" onclick="showTab(event, 'loadbalancer-tf')">Loadbalancer.tf</button>
+                    <button class="tab-button" onclick="showTab(event, 'other-files')">Other Files</button>
+                </div>
+
+                <div id="main-tf" class="tab-content active">
+                    <h3>main.tf - Core Infrastructure</h3>
+                    <p>Contains the primary resource definitions:</p>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Resource Group:</strong> Foundation for all Azure resources</li>
+                        <li><strong>Virtual Networks:</strong> Two separate VNets with distinct address spaces</li>
+                        <li><strong>Subnets:</strong> App, Web, DB, Bastion, and Gateway subnets</li>
+                        <li><strong>Network Security Groups:</strong> Firewall rules for each subnet tier</li>
+                        <li><strong>Route Tables:</strong> Custom routing policies</li>
+                        <li><strong>VNet Peering:</strong> Connection between VNets</li>
+                        <li><strong>Windows Virtual Machines:</strong> 3 instances deployed with count meta-argument</li>
+                        <li><strong>VM Extensions:</strong> IIS installation via CustomScriptExtension</li>
+                    </ul>
+                    <div class="code-block">
+                        <div class="code-label">Example: VNet Peering Configuration</div>
+resource "azurerm_virtual_network_peering" "mati_own_peering01to02" {
+  name                      = "${local.generic_name}-peering-vnet01tovnet02"
+  resource_group_name       = azurerm_resource_group.mati_own_rg1.name
+  virtual_network_name      = azurerm_virtual_network.mati_own_vnet_name.name
+  remote_virtual_network_id = azurerm_virtual_network.mati_own_vnet_name-02.id
+  allow_virtual_network_access = true
+  allow_forwarded_traffic = true
+}
+                    </div>
+                </div>
+
+                <div id="variables-tf" class="tab-content">
+                    <h3>variables.tf - Configuration Inputs</h3>
+                    <p>Defines all input variables for infrastructure customization:</p>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>subscription_id:</strong> Azure subscription identifier</li>
+                        <li><strong>resource_group_name:</strong> Target resource group</li>
+                        <li><strong>vnet_name & vnet_name-02:</strong> Virtual network names</li>
+                        <li><strong>address_space variables:</strong> CIDR blocks for networks and subnets</li>
+                        <li><strong>appsubnet, websubnet, dbsubnet:</strong> Subnet naming for each tier</li>
+                        <li><strong>admin_password:</strong> VM admin credentials</li>
+                        <li><strong>dns_servers:</strong> Custom DNS configuration</li>
+                        <li><strong>vm_to_create:</strong> Map variable for VM count iteration</li>
+                        <li><strong>ssh_pubkey_path:</strong> SSH key location for authentication</li>
+                    </ul>
+                    <div class="code-block">
+                        <div class="code-label">Example Variable Definition</div>
+variable "vnet_name" {
+  description = "Name for virtual network"
+  type = string
+}
+
+variable "address_space" {
+  description = "Virtual Network defined address space"
+  type = list(string)
+}
+                    </div>
+                </div>
+
+                <div id="loadbalancer-tf" class="tab-content">
+                    <h3>Loadbalancer.tf - Load Balancing (Optional)</h3>
+                    <p>Contains optional Azure Load Balancer resources:</p>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Public IP:</strong> Static public IP for load balancer</li>
+                        <li><strong>Load Balancer:</strong> Standard SKU for high availability</li>
+                        <li><strong>Backend Pool:</strong> Target VMs for load balancing</li>
+                        <li><strong>Health Probe:</strong> TCP-based health checks on port 80</li>
+                        <li><strong>Load Balancer Rule:</strong> HTTP traffic routing (80→80)</li>
+                        <li><strong>NAT Rule:</strong> RDP access rule (3389) for remote desktop</li>
+                        <li><strong>NIC Association:</strong> Link VMs to backend pool</li>
+                    </ul>
+                    <p><em style="color: #666;">Note: Currently commented out. Uncomment to enable load balancing.</em></p>
+                </div>
+
+                <div id="other-files" class="tab-content">
+                    <h3>Other Configuration Files</h3>
+                    
+                    <h4 style="color: var(--primary-blue); margin-top: 20px;">providers.tf</h4>
+                    <p>Specifies the Terraform provider and required versions for Azure.</p>
+
+                    <h4 style="color: var(--primary-blue); margin-top: 20px;">terraform.tfvars</h4>
+                    <p>Contains actual values for all variables defined in variables.tf. <strong>Customize this file with your Azure environment values.</strong></p>
+
+                    <h4 style="color: var(--primary-blue); margin-top: 20px;">outputs.tf</h4>
+                    <p>Exports important resource information after deployment (VNet IDs, subnet IDs, VM details, etc.)</p>
+
+                    <h4 style="color: var(--primary-blue); margin-top: 20px;">backend.tf</h4>
+                    <p>Configures Terraform state storage (typically Azure Storage Account for remote state management).</p>
+
+                    <h4 style="color: var(--primary-blue); margin-top: 20px;">local.tf</h4>
+                    <p>Defines local values for common naming conventions and tags applied to all resources.</p>
+                </div>
+            </section>
+
+            <!-- Deployment Guide -->
+            <section class="section">
+                <h2>🚀 Deployment Workflow</h2>
+                <div class="deployment-flow">
+                    <div class="flow-step"><strong>Step 1:</strong> Clone repository and configure Azure CLI authentication</div>
+                    <div class="flow-step"><strong>Step 2:</strong> Update terraform.tfvars with your Azure subscription details</div>
+                    <div class="flow-step"><strong>Step 3:</strong> Run <code>terraform init</code> to initialize Terraform working directory</div>
+                    <div class="flow-step"><strong>Step 4:</strong> Execute <code>terraform plan</code> to review resource creation plan</div>
+                    <div class="flow-step"><strong>Step 5:</strong> Run <code>terraform apply</code> to deploy resources to Azure</div>
+                    <div class="flow-step"><strong>Step 6:</strong> Monitor deployment progress in Azure Portal</div>
+                    <div class="flow-step"><strong>Step 7:</strong> Access outputs from <code>terraform output</code> command</div>
+                    <div class="flow-step"><strong>Step 8:</strong> Test connectivity between VMs and subnets</div>
+                    <div class="flow-step"><strong>Step 9:</strong> Use <code>terraform destroy</code> to cleanup resources when finished</div>
+                </div>
+            </section>
+
+            <!-- Technology Stack -->
+            <section class="section">
+                <h2>🛠️ Technology Stack</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>Terraform</h3>
+                        <p>Infrastructure as Code tool for defining and provisioning Azure resources declaratively.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>HCL</h3>
+                        <p>HashiCorp Configuration Language used exclusively in this project for resource definitions.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Azure Resource Manager</h3>
+                        <p>Microsoft Azure's native API for resource deployment and lifecycle management.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Azure CLI</h3>
+                        <p>Command-line interface for authentication and Azure resource management.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Advanced Features -->
+            <section class="section">
+                <h2>🎯 Advanced Features & Patterns</h2>
+                <div class="architecture-section">
+                    <h3>Terraform Meta-Arguments & Patterns</h3>
+                    <ul style="margin-left: 20px; line-height: 2;">
+                        <li><strong>count:</strong> Used for deploying multiple identical VMs (3 Windows instances)</li>
+                        <li><strong>for_each:</strong> Available for map-based iteration (see commented examples)</li>
+                        <li><strong>depends_on:</strong> Manages resource dependencies (e.g., marketplace agreements)</li>
+                        <li><strong>locals:</strong> Defines local values for naming and tagging consistency</li>
+                        <li><strong>Data interpolation:</strong> Uses Terraform functions for dynamic resource naming</li>
+                    </ul>
+
+                    <h3 style="margin-top: 25px;">Network Design Patterns</h3>
+                    <ul style="margin-left: 20px; line-height: 2;">
+                        <li><strong>Hub-and-Spoke VNet Peering:</strong> Demonstrates multi-VNet connectivity</li>
+                        <li><strong>Tiered Subnets:</strong> App, Web, Database separation for security</li>
+                        <li><strong>Security Group Rules:</strong> Allow all traffic template (customize for production)</li>
+                        <li><strong>Route Tables:</strong> Custom routing with specific route prefixes</li>
+                        <li><strong>Bastion Host Ready:</strong> Infrastructure prepared for secure remote access</li>
+                    </ul>
+
+                    <h3 style="margin-top: 25px;">Best Practices Implemented</h3>
+                    <ul style="margin-left: 20px; line-height: 2;">
+                        <li>✅ Modular configuration with separate .tf files for concerns</li>
+                        <li>✅ Variable-driven customization with terraform.tfvars</li>
+                        <li>✅ Consistent naming conventions via locals</li>
+                        <li>✅ Resource tagging for organization and cost tracking</li>
+                        <li>✅ Output definitions for important resource references</li>
+                        <li>✅ State backend configuration for team collaboration</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Customization Guide -->
+            <section class="section">
+                <h2>📝 Customization Guide</h2>
+                <p>This project is designed for training and can be easily customized:</p>
+                <div class="resource-list">
+                    <div class="resource-item">
+                        <strong>VM Count</strong>
+                        <small>Modify count = 3 to deploy different number of Windows VMs</small>
+                    </div>
+                    <div class="resource-item">
+                        <strong>Address Spaces</strong>
+                        <small>Update terraform.tfvars with your desired CIDR blocks</small>
+                    </div>
+                    <div class="resource-item">
+                        <strong>VM Size</strong>
+                        <small>Change Standard_DS1_v2 to other Azure VM SKUs</small>
+                    </div>
+                    <div class="resource-item">
+                        <strong>Security Rules</strong>
+                        <small>Replace "Allow_All" rules with specific port/protocol requirements</small>
+                    </div>
+                    <div class="resource-item">
+                        <strong>Enable Load Balancer</strong>
+                        <small>Uncomment Loadbalancer.tf resources for high availability setup</small>
+                    </div>
+                    <div class="resource-item">
+                        <strong>Add Bastion Host</strong>
+                        <small>Uncomment Bastion resources for secure remote access</small>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Learning Objectives -->
+            <section class="section">
+                <h2>📚 Learning Objectives</h2>
+                <p>This training project covers the following concepts:</p>
+                <div class="architecture-section">
+                    <ul style="margin-left: 20px; line-height: 2.2; font-size: 1.05em;">
+                        <li>Understanding Terraform HCL syntax and resource blocks</li>
+                        <li>Azure Resource Manager (ARM) concepts and resource types</li>
+                        <li>Network architecture design in cloud environments</li>
+                        <li>Virtual network configuration and peering</li>
+                        <li>Network security and NSG rule management</li>
+                        <li>Routing policies and route tables</li>
+                        <li>Virtual machine deployment and configuration</li>
+                        <li>Terraform variables, locals, and outputs</li>
+                        <li>Resource dependencies and meta-arguments</li>
+                        <li>Infrastructure as Code best practices</li>
+                        <li>State management and team collaboration</li>
+                        <li>Cost optimization through IaC</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Quick Reference -->
+            <section class="section">
+                <h2>⚡ Quick Reference</h2>
+                <div class="code-block">
+                    <div class="code-label">Essential Terraform Commands</div>
+# Initialize Terraform
+terraform init
+
+# Validate configuration syntax
+terraform validate
+
+# Format Terraform files
+terraform fmt
+
+# Plan deployment (shows what will be created)
+terraform plan -out=tfplan
+
+# Apply the plan (creates actual resources)
+terraform apply tfplan
+
+# View current state
+terraform state list
+
+# Destroy all resources
+terraform destroy
+
+# View outputs
+terraform output
+                </div>
+            </section>
+
+        </main>
+
+        <footer>
+            <p>🎓 <strong>Training Project:</strong> Azure Terraform Infrastructure Demo</p>
+            <p>📖 Learn Infrastructure as Code with Terraform and Microsoft Azure</p>
+            <p>💾 Repository: <a href="https://github.com/damimati/training-azure-terraform-demo" style="color: var(--primary-blue); text-decoration: none;">damimati/training-azure-terraform-demo</a></p>
+            <p style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 15px;">
+                License: MIT | Last Updated: 2026 | <a href="https://github.com/damimati" style="color: var(--primary-blue); text-decoration: none;">@damimati</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        function showTab(evt, tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all buttons
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show current tab and mark button as active
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        // Smooth scroll for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Add animation on page load
+        window.addEventListener('load', function() {
+            document.body.style.opacity = '1';
+        });
+    </script>
+</body>
+</html>
