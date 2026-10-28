@@ -105,6 +105,15 @@ variable "address_space_gatewaysubnet" {
   type = list(string)
 }
 
+variable "backupsubnet" {
+  description = "Name for db subnet"
+  type = string
+}
+
+variable "address_space_backupsbnet" {
+  description = "backupsubnet defined address space"
+  type = list(string)
+}
 
 variable "dns_servers" {
   description = "local defined dns servers"

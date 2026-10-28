@@ -63,6 +63,13 @@ resource "azurerm_subnet" "mati_own_dbsubnet" {
   address_prefixes = var.address_space_dbsubnet
 }
 
+# Create Backup Subnet
+resource "azurerm_subnet" "mati_own_backupsubnet" {
+  name = "${local.generic_name}-backup"
+  resource_group_name = azurerm_resource_group.mati_own_rg1.name
+  virtual_network_name = azurerm_virtual_network.mati_own_vnet_name.name
+  address_prefixes = var.address_space_backupsbnet
+}
 
 # Create App Subnet02
 resource "azurerm_subnet" "mati_own_appsubnet02" {
@@ -701,3 +708,4 @@ resource "azurerm_windows_virtual_machine" "mati_own_win_vm"{ //Windows VM multi
 #depends_on = [ azurerm_marketplace_agreement.rhel_terms ] #This is stating that the vm will be created after terraform first accepts the Microsoft terms and condition for RHEL
 
 }*/
+
